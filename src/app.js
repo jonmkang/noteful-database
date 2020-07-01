@@ -5,6 +5,8 @@ const cors = require('cors')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const e = require('express')
+const notesRouter = require('./notes/notes-router')
+const foldersRouter = require('./folders/folders-router')
 
 const app = express()
 
@@ -20,6 +22,11 @@ app.get('/', (req, res) => {
     res.send('Hello, world!')
 })
 
+app.get('/xss', (req, res) => {
+    res.cookie('secretToken', '1234567890');
+    res.sendFile(__dirname + '/xss-example.html');
+  });
+
 app.use(function errorHandler(error, req, res, next) {
     let response;
     if (NODE_ENV === 'production'){
@@ -30,5 +37,8 @@ app.use(function errorHandler(error, req, res, next) {
     }
     res.status(500).json(response)
 })
+
+app.use('/api/folders', foldersRouter)
+app.use('/api/notes', notesRouter)
 
 module.exports = app
